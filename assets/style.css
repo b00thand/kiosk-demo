@@ -26,7 +26,7 @@ body {
   background-image: url('./images/logotransparent.png');
   background-position: 5% 5%;
   background-repeat: no-repeat;
-  background-size: 2000px 469px;
+  background-size: auto auto;
   background-color: #007cbb;
   color: white;
   font-size: 36px;
