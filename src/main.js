@@ -4,7 +4,7 @@ function setup() {
   Alpine.store('model', {
     currentPage: 'home', // 'home', 'service'
     currentLanguage: 'english',
-    dialNumber: '+16786453333',
+    dialNumber: 'scott.barga@coxinc.com',
     services: [],
 
     init() {
