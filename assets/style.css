@@ -16,6 +16,7 @@ html, body {
   margin: 0;
 }
 
+
 body {
   padding: 5vw;
   display: flex;
@@ -27,7 +28,7 @@ body {
   background-position: 5% 5%;
   background-repeat: no-repeat;
   background-size: 800px auto;
-  background-color: #007cbb;
+  background-color: #ff6699;
   color: white;
   font-size: 36px;
 }
