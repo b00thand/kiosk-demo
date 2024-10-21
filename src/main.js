@@ -4,7 +4,7 @@ function setup() {
   Alpine.store('model', {
     currentPage: 'home', // 'home', 'service'
     currentLanguage: 'english',
-    dialNumber: 'zVSE Test',
+    dialNumber: '+16786453333',
     services: [],
 
     init() {
