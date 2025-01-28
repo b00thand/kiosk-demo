@@ -11,9 +11,16 @@ function setup() {
       const params = new URLSearchParams(location.search);
       if (params.has('number')) {
         this.dialNumber = params.get('number');
+      } else {
+        this.dialNumber = 'Kiosk Test'; // Default value if no query param is present
       }
+    
+      // Ensure dialNumber is a valid URI, or use a placeholder
+      const isValidURI = /^([a-z][a-z\d+\-.]*:)?\/\//i.test(this.dialNumber);
+      const dialURL = isValidURI ? this.dialNumber : `tel:${this.dialNumber}`;
+    
       this.services = [
-        { url: this.dialNumber, name: 'Call' },
+        { url: dialURL, name: 'Call' },
       ];
     },
     get page() {
