@@ -3,7 +3,7 @@ function setup() {
   Alpine.store('model', {
     currentPage: 'home', // 'home', 'service'
     currentLanguage: 'english',
-    dialNumber: 'Kiosk Test',
+    dialNumber: 'kiosk_test@coxwxc.rooms.webex.com',
     services: [],
 
     init() {
