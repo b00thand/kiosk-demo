@@ -52,7 +52,7 @@
     <h2>To Call Corporate Security, Touch Call Button Below</h2>
     <div class="row">
       <template x-for="service in services">
-        <a class="service" x-bind:href="'sip:'+ service.url" :class="service.name">
+        <a class="service" x-bind:href="'sip:' + service.url" :class="service.name">
           <div class="avatar"></div>
           <label x-text="service.name"></label>
         </a>
