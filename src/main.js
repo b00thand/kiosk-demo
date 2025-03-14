@@ -4,7 +4,7 @@ function setup() {
   Alpine.store('model', {
     currentPage: 'home', // 'home', 'service'
     currentLanguage: 'english',
-    dialNumber: 'sip:henrys_deskpro@coxwxc.rooms.webex.com',
+    dialNumber: 'sip:jjames@coxwxc.calls.webex.com',
     services: [],
 
     init() {
