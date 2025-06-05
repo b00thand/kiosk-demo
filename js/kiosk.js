@@ -1,525 +1,411 @@
-
-// Import the VideoEngagerClient
-import { VideoEngagerClient } from "./client.js";
-
-const DEFAULT_LANG = "en";
+/* global CXBus $ jQuery videoEngager */
+const DEFAULT_LANG = 'en';
+const callStarted = false;
 const ERROR_RETRY_TIMEOUT = 1000 * 5;
 const INACTIVITY_TIMEOUT = 1000 * 60 * 60;
-const CALL_TIMEOUT = 1000 * 60 * 3;
-// const logEl = document.getElementById("log");
+const CALL_TIMEOUT = 1000 * 60 * 30;
 
-// Global client instance
-let videoEngagerClient = null;
-
-function log(msg) {
-//   const ts = new Date().toLocaleTimeString();
-//   logEl.textContent += `[${ts}] ${msg}\n`;
-//   logEl.scrollTop = logEl.scrollHeight;
-//   console.log(`[${ts}] ${msg}`); // Also log to console
-}
+window.addEventListener('online', () => {
+  console.log('Became online');
+  refresh();
+});
+window.addEventListener('offline', () => {
+  console.log('Became offline');
+  handleError(6);
+});
 
 const codeResolve = {
   8: {
-    message: "Script library cannot be loaded.",
-    type: "Library Error",
+    message: 'Script library cannot be loaded.',
+    type: 'Library Error'
   },
   7: {
-    message:
-      "We are sorry, but you do not have access to this page or resource.",
-    type: "Forbidden",
+    message: 'We are sorry, but you do not have access to this page or resource.',
+    type: 'Forbidden'
   },
   6: {
-    message: "Page will be reloaded when network became available.",
-    type: "Network Error",
+    message: 'Page will be reloaded when network became available.',
+    type: 'Network Error'
   },
   5: {
-    message:
-      "You have a network connection problem. Page will be reloaded in 5 seconds.",
-    type: "Internal Server Error",
+    message: 'You have a network connection problem. Page will be reloaded in 5 seconds.',
+    type: 'Internal Server Error'
   },
   4: {
-    message: "Configuration file cannot be found. Please contact support.",
-    type: "Not Found",
+    message: 'Configuration file cannot be found. Please contact support.',
+    type: 'Not Found'
   },
   2: {
-    message: "Configuration file is not valid. Please contact support.",
-    type: "Parse Error",
+    message: 'Configuration file is not valid. Please contact support.',
+    type: 'Parse Error'
   },
   0: {
-    message: "Server is not accessible. Please contact support.",
-    type: "No Response Error",
-  },
+    message: 'Server is not accessible. Please contact support.',
+    type: 'No Response Error'
+  }
 };
 
-const callTimeout = {
-  cancelVideoSession: function () {
-    log("TIMEOUT: Call timeout reached, canceling video session");
-    if (videoEngagerClient) {
-      log("TIMEOUT: Calling videoEngagerClient.endVideo()");
-      videoEngagerClient.endVideo();
-    } else {
-      log("TIMEOUT: No videoEngagerClient available to end");
-    }
-    this.timeoutId = undefined;
-    log("TIMEOUT: Call timeout cleared");
+const refresh = function () {
+  window.location.reload(true);
+};
+
+const handleError = function (statusCode) {
+  $('#errorModal').modal({
+    backdrop: 'static',
+    keyboard: false
+  });
+
+  statusCode = String(statusCode).charAt(0);
+  if (statusCode === '5') {
+    setTimeout(refresh, ERROR_RETRY_TIMEOUT);
+  }
+
+  if (statusCode === '8') {
+    document.querySelector('#error-text').style.display = 'block';
+    document.querySelector('#error-text').innerHTML = codeResolve[statusCode].message;
+    return;
+  }
+
+  $('#modalTitle').html(codeResolve[statusCode].type);
+  $('.modal-body').html(codeResolve[statusCode].message);
+  $('#errorModal').modal('show');
+  $('.modal-footer-custom').hide();
+};
+
+const lang = {
+
+  en: {
+    headerEmphasie: 'Click',
+    motto: 'SmartVideo Kiosk Demo',
+    buttonExplaination: 'By clicking connect you are giving your consent to possibly be recorded during the video call.',
+    connect: 'Touch Here To Begin Your Live Video Help Session',
+    loadingText: 'Connecting to an Agent'
   },
-  set: function () {
-    log(`TIMEOUT: Setting call timeout for ${CALL_TIMEOUT}ms`);
-    if (typeof this.timeoutId === "number") {
-      log("TIMEOUT: Canceling existing timeout before setting new one");
-      this.cancel();
-    }
-    this.timeoutId = setTimeout(
-      function () {
-        log("TIMEOUT: Call timeout triggered");
-        this.cancelVideoSession();
-      }.bind(this),
-      CALL_TIMEOUT
-    );
-    log(`TIMEOUT: Call timeout set with ID: ${this.timeoutId}`);
-  },
-  cancel: function () {
-    log(`TIMEOUT: Canceling call timeout (ID: ${this.timeoutId})`);
-    clearTimeout(this.timeoutId);
-    log("TIMEOUT: Call timeout canceled");
-  },
+  de: {
+    headerEmphasie: 'Klick',
+    motto: 'SmartVideo Kiosk Demo',
+    buttonExplaination: 'Indem Sie auf Verbinden klicken, geben Sie Ihr Einverständnis, einen Videoanruf zu tätigen und eventuell aufgezeichnet zu werden.',
+    connect: 'Verbinden',
+    loadingText: 'Verbinde mit einem Agenten'
+  }
 };
 
 const inactivityTimeout = {
   set: function () {
-    log(`INACTIVITY: Setting inactivity timeout for ${INACTIVITY_TIMEOUT}ms`);
-    if (typeof this.timeoutId === "number") {
-      log("INACTIVITY: Canceling existing inactivity timeout");
+    if (typeof this.timeoutId === 'number') {
       this.cancel();
     }
     this.timeoutId = setTimeout(function () {
-      log("INACTIVITY: Inactivity timeout triggered - reloading page");
       window.location.reload(true);
     }, INACTIVITY_TIMEOUT);
-    log(`INACTIVITY: Inactivity timeout set with ID: ${this.timeoutId}`);
   },
   reset: function () {
-    log("INACTIVITY: Reset called (no implementation)");
+
   },
   cancel: function () {
-    log(`INACTIVITY: Canceling inactivity timeout (ID: ${this.timeoutId})`);
     clearTimeout(this.timeoutId);
-    log("INACTIVITY: Inactivity timeout canceled");
-  },
-};
-
-window.addEventListener("online", () => {
-  log("NETWORK: Browser came online");
-  console.log("Became online");
-  refresh();
-});
-
-window.addEventListener("offline", () => {
-  log("NETWORK: Browser went offline");
-  console.log("Became offline");
-  handleError(6);
-});
-
-const refresh = function () {
-  log("REFRESH: Reloading page");
-  window.location.reload(true);
-};
-
-const setLang = function (lang) {
-  log(
-    `LANG: Setting language strings - motto: "${lang.motto}", connect: "${lang.connect}", loadingText: "${lang.loadingText}"`
-  );
-  $(".secondery-text").html(lang.motto);
-  $("#connectButton").html(lang.connect);
-  $("#loadingText").html(lang.loadingText);
-  log("LANG: Language strings applied to DOM");
-};
-
-function getLangFromParams() {
-  log("LANG: Getting language from URL parameters");
-  const urlParams = new URLSearchParams(window.location.search);
-  const lang = urlParams.get("lang");
-  const finalLang = lang || DEFAULT_LANG;
-  log(`LANG: URL param lang="${lang}", using "${finalLang}"`);
-  return finalLang;
-}
-
-function addCarouselItems() {
-  log("CAROUSEL: Starting to add carousel items");
-  const items = window.CAROUSEL_ITEMS || [];
-  log(
-    `CAROUSEL: Found ${items.length} carousel items in window.CAROUSEL_ITEMS`
-  );
-
-  const carouselContainer = document.getElementById("carousel-inner");
-  if (!carouselContainer) {
-    log("CAROUSEL: ERROR - carousel-inner container not found");
-    return;
   }
+};
 
-  log(
-    `CAROUSEL: Container has ${carouselContainer.children.length} existing children`
-  );
-
-  // Remove existing items except the first one
-  let removedCount = 0;
-  for (const item of carouselContainer.children) {
-    if (item.id === "carousel-item-1") {
-      log("CAROUSEL: Keeping carousel-item-1");
-      continue;
+const callTimeout = {
+  cancelVideoSession: function () {
+    CXBus.command('VideoEngager.endCall');
+    this.timeoutId = undefined;
+  },
+  set: function () {
+    if (typeof this.timeoutId === 'number') {
+      this.cancel();
     }
-    log(`CAROUSEL: Removing existing item: ${item.id}`);
-    item.remove();
-    removedCount++;
-  }
-  log(`CAROUSEL: Removed ${removedCount} existing items`);
-
-  let itemIndex = 2;
-  for (const item of items) {
-    log(
-      `CAROUSEL: Adding item ${itemIndex} - src: "${item.src}", alt: "${
-        item.alt || "slide" + itemIndex
-      }"`
-    );
-    const div = document.createElement("div");
-    div.id = "carousel-item-" + itemIndex;
-    div.className = "carousel-item";
-    const img = document.createElement("img");
-    img.src = item.src;
-    img.alt = item.alt || "slide" + itemIndex;
-    div.appendChild(img);
-    carouselContainer.appendChild(div);
-    log(`CAROUSEL: Added carousel-item-${itemIndex} to container`);
-    itemIndex++;
-  }
-  log(`CAROUSEL: Finished adding ${items.length} carousel items`);
-}
-
-document.addEventListener("DOMContentLoaded", function (event) {
-  log("DOM: DOMContentLoaded event fired");
-
-  if (!jQuery) {
-    log("DOM: ERROR - jQuery not available");
-    handleError(8);
-    return;
-  }
-  log("DOM: jQuery is available");
-
-  if (window.BACKGROUND_IMAGE) {
-    log(`DOM: Setting background image: ${window.BACKGROUND_IMAGE}`);
-    const elem = document.getElementById("initial-screen");
-    if (elem) {
-      elem.style.backgroundImage = `url(${window.BACKGROUND_IMAGE})`;
-      log("DOM: Background image applied to initial-screen");
-    } else {
-      log("DOM: ERROR - initial-screen element not found for background image");
-    }
-  } else {
-    log("DOM: No background image specified in window.BACKGROUND_IMAGE");
-  }
-
-  log("DOM: Calling setInitialScreen()");
-  setInitialScreen();
-
-  log("DOM: Calling addCarouselItems()");
-  addCarouselItems();
-
-  const messageHandler = function (e) {
-    log(
-      `MESSAGE: Received message - type: ${
-        e.data?.type
-      }, data: ${JSON.stringify(e.data)}`
-    );
-    console.log("messageHandler", e.data);
-
-    if (e.data && e.data.type === "CallStarted") {
-      log(
-        "MESSAGE: CallStarted received - hiding loading screens and showing video UI"
-      );
-      $("#loadingScreen,#carousel").hide();
-      $("#cancel-button-loading").hide();
-      $("#video-call-ui").css("height", "100%");
-
-      log("MESSAGE: Canceling call timeout due to CallStarted");
-      callTimeout.cancel();
-    }
-  };
-
-  log("DOM: Setting up message event listener");
-  if (window.addEventListener) {
-    window.addEventListener("message", messageHandler, false);
-    log("DOM: Message listener added using addEventListener");
-  } else {
-    window.attachEvent("onmessage", messageHandler);
-    log("DOM: Message listener added using attachEvent (IE compatibility)");
-  }
-
-  log("DOM: Calling setupButtonEventListeners()");
-  setupButtonEventListeners();
-
-  log("DOM: Calling getConfig()");
-  getConfig();
-});
-
-const handleError = function (statusCode) {
-  log(`ERROR: Handling error with status code: ${statusCode}`);
-
-  $("#errorModal").modal({
-    backdrop: "static",
-    keyboard: false,
-  });
-  log("ERROR: Error modal configured");
-
-  statusCode = String(statusCode).charAt(0);
-  log(`ERROR: Normalized status code to: ${statusCode}`);
-
-  if (statusCode === "5") {
-    log(`ERROR: Status 5 - will refresh page in ${ERROR_RETRY_TIMEOUT}ms`);
-    setTimeout(refresh, ERROR_RETRY_TIMEOUT);
-  }
-
-  if (statusCode === "8") {
-    log("ERROR: Status 8 - showing error text directly");
-    document.querySelector("#error-text").style.display = "block";
-    document.querySelector("#error-text").innerHTML =
-      codeResolve[statusCode].message;
-    log(`ERROR: Error text set to: ${codeResolve[statusCode].message}`);
-    return;
-  }
-
-  const errorInfo = codeResolve[statusCode];
-  if (errorInfo) {
-    log(
-      `ERROR: Showing modal - type: "${errorInfo.type}", message: "${errorInfo.message}"`
-    );
-    $("#modalTitle").html(errorInfo.type);
-    $(".modal-body").html(errorInfo.message);
-  } else {
-    log(`ERROR: Unknown status code ${statusCode}, using generic error`);
-  }
-
-  $("#errorModal").modal("show");
-  $(".modal-footer-custom").hide();
-  log("ERROR: Error modal displayed");
-};
-
-const lang = {
-  en: {
-    motto: "SmartVideo Kiosk Demo",
-    connect: "Touch Here To Begin",
-    loadingText: "Connecting to an Agent",
+    this.timeoutId = setTimeout(function () {
+      this.cancelVideoSession();
+    }.bind(this), CALL_TIMEOUT);
   },
-  de: {
-    motto: "SmartVideo Kiosk Demo",
-    connect: "Verbinden",
-    loadingText: "Verbinde mit einem Agenten",
-  },
-  ar: {
-    motto: "عرض توضيحي لسمارت فيديو كيوسك",
-    connect: "الاتصال",
-    loadingText: "جاري الاتصال بموظف خدمة العملاء",
-  },
+  cancel: function () {
+    clearTimeout(this.timeoutId);
+  }
 };
 
 const setInitialScreen = function () {
-  log("UI: Setting initial screen state");
-  $("#loadingScreen,#carousel").hide();
-  $("#cancel-button-loading").hide();
-  $("#initial-screen").css("display", "flex");
-  $("#oncall-screen").hide();
-  log("UI: Initial screen elements configured");
-
-  log("UI: Setting inactivity timeout");
+  $('#loadingScreen,#carousel').hide();
+  $('#cancel-button-loading').hide();
+  $('#initial-screen').css('display', 'flex');
+  $('#oncall-screen').hide();
+  $('#lang').show();
+  // $('#closeVideoButtonContainer').hide();
   inactivityTimeout.set();
-  log("UI: Initial screen setup complete");
 };
 
-const getConfig = async function () {
-  log("CONFIG: Starting configuration retrieval");
+const setOnCallScreen = function () {
+  $('#loadingScreen,#carousel').show();
+  $('#initial-screen').hide();
+  $('#oncall-screen').show();
+  // $('#closeVideoButtonContainer').show();
+  const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+  const height = (vh && vh - 100) || false;
+  if (height) {
+    $('#myVideoHolder').css('height', `${height}px`);
+  } else {
+    $('#myVideoHolder').css('height', '100%');
+  }
+  $('#lang').hide();
+  inactivityTimeout.cancel();
+};
+
+const setLang = function (lang) {
+  $('.secondery-text').html(lang.motto);
+  $('#consent').html(lang.buttonExplaination);
+  $('#connectButton').html(lang.connect);
+  $('#loadingText').html(lang.loadingText);
+};
+
+const getConfig = function () {
+  const langObj = lang[DEFAULT_LANG];
+  setLang(langObj);
+  genesysConfigInit();
+  setConfig(DEFAULT_LANG);
+  loadGenesysWidget();
+};
+
+const cloneObj = function (obj) {
   try {
-    // Check if config is available
-    if (!window.WIDGET_CONFIG) {
-      log("CONFIG: ERROR - WIDGET_CONFIG not found in window object");
-      console.error("WIDGET_CONFIG not found");
-      handleError(4);
-      return;
-    }
-    log("CONFIG: WIDGET_CONFIG found in window object");
-
-    // Get language-specific config
-    const currentLang = getLangFromParams();
-    log(`CONFIG: Looking for configuration for language: ${currentLang}`);
-    const config = window.WIDGET_CONFIG[currentLang];
-
-    if (!config) {
-      log(
-        `CONFIG: ERROR - Configuration for language '${currentLang}' not found`
-      );
-      log(
-        `CONFIG: Available languages: ${Object.keys(window.WIDGET_CONFIG).join(
-          ", "
-        )}`
-      );
-      console.error(`Configuration for language '${currentLang}' not found`);
-      handleError(2);
-      return;
-    }
-    log(`CONFIG: Configuration found for language '${currentLang}'`);
-
-    const langObj = lang[currentLang];
-    if (langObj) {
-      log(
-        `CONFIG: Language object found for '${currentLang}', applying language settings`
-      );
-      setLang(langObj);
-    } else {
-      log(
-        `CONFIG: WARNING - No language object found for '${currentLang}', available: ${Object.keys(
-          lang
-        ).join(", ")}`
-      );
-    }
-
-    // Validate required configuration
-    log("CONFIG: Validating required configuration sections");
-    if (!config.videoEngager) {
-      log("CONFIG: ERROR - Missing videoEngager configuration section");
-    }
-    if (!config.genesys) {
-      log("CONFIG: ERROR - Missing genesys configuration section");
-    }
-
-    if (!config.videoEngager || !config.genesys) {
-      log("CONFIG: ERROR - Missing required configuration sections");
-      console.error("Missing required configuration sections");
-      handleError(2);
-      return;
-    }
-    log("CONFIG: All required configuration sections present");
-
-    // Initialize VideoEngager client
-    log("CONFIG: Calling initializeVideoEngager with validated config");
-    await initializeVideoEngager(config);
-  } catch (error) {
-    log(`CONFIG: ERROR - Exception during configuration: ${error.message}`);
-    console.error("Configuration error:", error);
-    handleError(8);
+    return JSON.parse(JSON.stringify(obj));
+  } catch (e) {
+    return {};
   }
 };
 
-const setupVideoEngagerEventListeners = function () {
-  log("EVENTS: Setting up VideoEngager event listeners");
-  if (!videoEngagerClient) {
-    log("EVENTS: ERROR - VideoEngager client not initialized");
-    console.error("VideoEngager client not initialized");
-    handleError(8);
-    return;
-  }
+const setConfig = function (selectedLang) {
+  // avoid shallow copy
+  const genesysConfig = cloneObj(window.GENESYS_CONFIG);
+  selectedLang = selectedLang || DEFAULT_LANG;
+  // get default config
+  let config = genesysConfig[DEFAULT_LANG];
+  const selectedConf = genesysConfig[selectedLang] || {};
+  const langObj = lang[selectedLang];
+  setLang(langObj);
+  // use defaul config props if props are not set in selected config
+  config = Object.assign(config, selectedConf);
 
-  videoEngagerClient.on("VideoEngagerCall.ended", () => {
-    log("Video ended");
-    setInitialScreen();
+  if (config) {
+    window._genesys.widgets.videoengager.tenantId = config.tennantId;
+    window._genesys.widgets.videoengager.veUrl = config.videoengagerUrl;
+    window._genesys.widgets.webchat.transport.dataURL = config.environment;
+    window._genesys.widgets.webchat.transport.deploymentKey = config.deploymentId;
+    window._genesys.widgets.webchat.transport.orgGuid = config.organizationId;
+    window._genesys.widgets.webchat.transport.interactionData.routing.targetAddress = config.queue;
+  }
+};
+
+const loadGenesysWidget = function () {
+  const widgetBaseUrl = 'https://apps.mypurecloud.de/widgets/9.0/';
+  const widgetScriptElement = document.createElement('script');
+
+  widgetScriptElement.setAttribute('src', widgetBaseUrl + 'cxbus.min.js');
+  widgetScriptElement.addEventListener('load', function () {
+    CXBus.configure({ debug: true, pluginsPath: widgetBaseUrl + 'plugins/' });
+    CXBus.loadPlugin('widgets-core');
+    $('#StartVideoCall').click(function () {
+      startCleanInteraction();
+      // cancel video session after 3 minutes timeout
+      callTimeout.set();
+    });
+
+    const cancelButtonLoading = document.getElementById('cancel-button-loading');
+
+    cancelButtonLoading.addEventListener('touchend', function (e) {
+      e.preventDefault();
+      CXBus.command('VideoEngager.endCall');
+      setInitialScreen();
+    });
+    cancelButtonLoading.addEventListener('click', function (e) {
+      e.preventDefault();
+      CXBus.command('VideoEngager.endCall');
+      setInitialScreen();
+    });
+
+    const elem = document.getElementById('closeVideoButton');
+
+    elem.addEventListener('touchend', function (e) {
+      e.preventDefault();
+      CXBus.command('VideoEngager.endCall');
+      setInitialScreen();
+    });
+    elem.addEventListener('click', function (e) {
+      e.preventDefault();
+      CXBus.command('VideoEngager.endCall');
+      setInitialScreen();
+    });
+
+    CXBus.subscribe('WebChatService.started', function () {
+      $('#cancel-button-loading').show();
+    });
+
+    CXBus.subscribe('WebChatService.ended', function () {
+      console.log('Interaction Ended');
+      setInitialScreen();
+      callTimeout.cancel();
+    });
+
+    CXBus.subscribe('WebChatService.restored', function (e) {
+      console.error('Chat restored, cleaning it' + JSON.stringify(e));
+      CXBus.command('WebChatService.endChat');
+      handleError(5);
+    });
+
+    CXBus.subscribe('WebChatService.error', function (e) {
+      // Log the error and continue
+      console.error('WebService error' + JSON.stringify(e));
+      setInitialScreen();
+    });
+  });
+  document.head.append(widgetScriptElement);
+};
+
+const startCleanInteraction = function () {
+  setOnCallScreen();
+
+  CXBus.command('VideoEngager.startVideoEngager');
+
+  $('.carousel-item').removeClass('active');
+  $('#carousel-item-1').addClass('active');
+  $('.carousel').carousel({
+    interval: 5000
   });
 };
 
-const initializeVideoEngager = async function (config) {
-  log("VIDEOCLIENT: Starting VideoEngager client initialization");
-  try {
-    // Create client instance with config
-    log("VIDEOCLIENT: Creating new VideoEngagerClient instance");
-    videoEngagerClient = new VideoEngagerClient(config);
-    log("VIDEOCLIENT: VideoEngagerClient instance created");
-
-    // Initialize the client
-    log("VIDEOCLIENT: Calling client.init()");
-    await videoEngagerClient.init();
-
-    setupVideoEngagerEventListeners();
-    log("VIDEOCLIENT: VideoEngager client initialized successfully");
-
-    log("VIDEOCLIENT: Client initialization completed successfully");
-
-    console.log("VideoEngager client initialized successfully");
-    log("VIDEOCLIENT: VideoEngager client is ready for use");
-
-    // You can now use the client methods
-    log(
-      "VIDEOCLIENT: Available methods: startVideo(), startChat(), endVideo()"
-    );
-  } catch (error) {
-    log(
-      `VIDEOCLIENT: ERROR - Failed to initialize VideoEngager: ${error.message}`
-    );
-    console.error("Failed to initialize VideoEngager:", error);
-    handleError(8);
-  }
-};
-
-const setupButtonEventListeners = function () {
-  log("BUTTONS: Setting up button event listeners");
-
-  // Start Video Call button
-  const startVideoButton = document.getElementById("StartVideoCall");
-  if (startVideoButton) {
-    log("BUTTONS: StartVideoCall button found, adding click listener");
-    startVideoButton.addEventListener("click", async function (e) {
-      e.preventDefault();
-      log("BUTTONS: Start Video Call button clicked");
-      console.log("Start Video Call button clicked");
-
-      try {
-        log("BUTTONS: Hiding initial screen and showing loading state");
-        $("#initial-screen").hide();
-        $("#oncall-screen").show();
-        $("#loadingScreen,#carousel").show();
-        $("#cancel-button-loading").show();
-        log("BUTTONS: UI state changed to loading");
-
-        // Set call timeout
-        log("BUTTONS: Setting call timeout");
-        callTimeout.set();
-
-        // Start the video call using the client
-        if (videoEngagerClient) {
-          log("BUTTONS: VideoEngager client available, starting video call");
-          await videoEngagerClient.startVideo();
-          log("BUTTONS: Video call started successfully");
-          console.log("Video call started successfully");
-        } else {
-          log("BUTTONS: ERROR - VideoEngager client not initialized");
-          console.error("VideoEngager client not initialized");
-          handleError(8);
-          setInitialScreen();
-        }
-      } catch (error) {
-        log(`BUTTONS: ERROR - Failed to start video call: ${error.message}`);
-        console.error("Failed to start video call:", error);
-        handleError(8);
-        setInitialScreen();
+const genesysConfigInit = function () {
+  /* genesys configuration code */
+  if (!window._genesys) window._genesys = {};
+  if (!window._gt) window._gt = [];
+  window._genesys.widgets = {
+    main: {
+      downloadGoogleFont: false,
+      debug: true,
+      theme: 'dark',
+      lang: 'en',
+      i18n: 'https://apps.mypurecloud.de/widgets/9.0/i18n/widgets-en.i18n.json',
+      plugins: [
+        'webchatservice'
+      ],
+      preload: [
+        'webchatservice'
+      ]
+    },
+    videoengager: {
+      callHolder: 'myVideoHolder', // provides a place/div/ where the VideoEngager widget should be inserted. Otherwise, popup winddow will be open.
+      platform: 'purecloud', // one of 'engage' or 'purecloud'
+      tenantId: '', // VideoEngager tenantId
+      veUrl: '', // VideoEngager api base url
+      audioOnly: false, // start the VideoEngager call with audioOnly (without video)
+      autoAccept: true, // during the call negotiation - automatically enter the call
+      enablePrecall: false, // start the VideoEngager session with precall window - the visitor could select their camera/microphone settings
+      useWebChatForm: false, // start VideoEngager session with/without registration form
+      // in case of useWebChatForm == false, pass the following data to conversation initialization - visible for agent
+      extraAgentMessage: '**This is a VideoEngager Video Call!!!**',
+      webChatFormData: {
+        nickname: 'TechExpress',
+        firstname: 'TechExpress',
+        lastname: 'Kiosk User',
+        // email: 'na@videoengager.com',
+        subject: 'Tech Express Video Call',
+        userData: {}
+      },
+      customAttributes: {
+        ipad: true // hide video widget controll buttons and move video preview to right bottom corner
       }
-    });
-    log("BUTTONS: StartVideoCall click listener added");
-  } else {
-    log("BUTTONS: WARNING - StartVideoCall button not found in DOM");
-  }
-
-  // Cancel button during loading
-  const cancelButton = document.getElementById("cancel-button-loading");
-  if (cancelButton) {
-    log("BUTTONS: cancel-button-loading found, adding click listener");
-    cancelButton.addEventListener("click", function (e) {
-      e.preventDefault();
-      log("BUTTONS: Cancel button clicked");
-      console.log("Cancel button clicked");
-
-      log("BUTTONS: Canceling video session and returning to initial screen");
-      callTimeout.cancelVideoSession();
-      setInitialScreen();
-    });
-    log("BUTTONS: Cancel button click listener added");
-  } else {
-    log("BUTTONS: WARNING - cancel-button-loading button not found in DOM");
-  }
-
-  log("BUTTONS: Button event listeners setup complete");
+    },
+    webchat: {
+      transport: {
+        type: 'purecloud-v2-sockets',
+        dataURL: '', // genesys server url ex: https://api.mypurecloud.com
+        deploymentKey: '', // deployment id
+        orgGuid: '', // organization id
+        markdown: true,
+        interactionData: {
+          routing: {
+            targetType: 'QUEUE',
+            targetAddress: '', // genesys queue name
+            priority: 2
+          }
+        }
+      }
+    },
+    extensions: {
+      VideoEngager: videoEngager.initExtension
+    }
+  };
 };
+
+function addCarouselItems () {
+  const items = window.CAROUSEL_ITEMS || [];
+  const carouselContainer = document.getElementById('carousel-inner');
+  for (const item of carouselContainer.children) {
+    if (item.id === 'carousel-item-1') continue;
+    item.remove();
+  }
+  let itemIndex = 2;
+  for (const item of items) {
+    const div = document.createElement('div');
+    div.id = 'carousel-item-' + itemIndex;
+    div.className = 'carousel-item';
+    const img = document.createElement('img');
+    img.src = item.src;
+    img.alt = item.alt || 'slide' + itemIndex;
+    div.appendChild(img);
+    carouselContainer.appendChild(div);
+    itemIndex++;
+  }
+}
+// on document ready
+document.addEventListener('DOMContentLoaded', function (event) {
+  if (!jQuery) {
+    handleError(8);
+    return;
+  }
+  if (window.BACKGROUND_IMAGE) {
+    const elem = document.getElementById('initial-screen');
+    elem.style.backgroundImage = `url(${window.BACKGROUND_IMAGE})`;
+  }
+  setInitialScreen();
+  addCarouselItems();
+  // lang
+  $('#en_flag').show();
+  $('#de_flag').hide();
+
+  $('#en_flag').on('click', function () {
+    if (callStarted) {
+      return;
+    }
+    $('#de_flag').show();
+    $('#en_flag').hide();
+    setConfig('de');
+  });
+  $('#de_flag').on('click', function () {
+    if (callStarted) {
+      return;
+    }
+    $('#en_flag').show();
+    $('#de_flag').hide();
+    setConfig('en');
+  });
+
+  const messageHandler = function (e) {
+    console.log('messageHandler', e.data);
+    if (e.data && e.data.type === 'CallStarted') {
+      $('#loadingScreen,#carousel').hide();
+      $('#cancel-button-loading').hide();
+      $('#closeVideoButtonContainer').show();
+      $('#closeVideoButtonContainer').focus();
+      $('#myVideoHolder').css('height', '100%');
+
+      callTimeout.cancel();
+    }
+  };
+  if (window.addEventListener) {
+    window.addEventListener('message', messageHandler, false);
+  } else {
+    window.attachEvent('onmessage', messageHandler);
+  }
+
+  getConfig();
+});

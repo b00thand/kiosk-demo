@@ -1,152 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>VideoEngager - Kiosk Demo</title>
-    <link href="./css/styles.css" type="text/css" rel="stylesheet" />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
-    />
+    <link href="./css/styles.css" type="text/css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./config/conf.js" defer></script>
-    <script
-      src="https://cdn.videoengager.com/videoengager/js/1.02/videoengager.widget.js"
-      defer
-    ></script>
-    <script type="module" defer src="./js/kiosk.js"></script>
-  </head>
+    <script src="https://cdn.videoengager.com/videoengager/js/1.02/videoengager.widget.js" defer></script>
+    <script type="text/javascript" src="./js/kiosk.js"></script>
+</head>
 
-  <body class="container-body" style="padding-bottom: 0px; padding-top: 0px">
-    <header class="demo-header">
-      <a href="https://videoengager.github.io" title="Back to Demos Index"
-        >Index</a
-      >
-      <a
-        href="https://github.com/VideoEngager/videoengager.github.io/blob/master/examples/kiosk-new-messenger"
-        target="_blank"
-        rel="noopener noreferrer"
-        title="View Source on GitHub"
-        >View Source</a
-      >
-    </header>
-    <div
-      id="initial-screen"
-      style="
-        display: none;
-        object-fit: cover;
-        background-size: cover;
-        justify-content: center;
-        align-items: center;
-      "
-    >
-      <div class="text-center" id="buttonContainer">
-        <button
-          id="StartVideoCall"
-          style="
-            border-radius: 999999px;
-            overflow: hidden;
-            padding: 20px;
-            background: #005287;
-            color: white;
-            border: none;
-            aspect-ratio: 1/1;
-            max-width: 200px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-          "
-        >
-          <img
-            src="https://staging.leadsecure.com/nextjs/favicon-white.svg"
-            alt="logo"
-            style="width: 60%; user-select: none"
-          />
-          <span id="connectButton" style="user-select: none"> </span>
-        </button>
-      </div>
-    </div>
+<body class="container-body" style="
+    padding-bottom: 0px;
+    padding-top: 0px;
+    
 
-    <div id="oncall-screen" style="display: none">
-      <div id="video-call-ui"></div>
-      <button id="cancel-button-loading" style="display: none">
-        <svg
-          focusable="false"
-          viewBox="0 0 24 24"
-          style="width: 100%; height: 100%; fill: white"
-        >
-          <path
-            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"
-          />
-        </svg>
-      </button>
-      <div
-        id="carousel"
-        class="carousel slide"
-        data-interval="5000"
-        data-wrap="true"
-        data-pause="false"
-        data-ride="carousel"
-        style="top: 0px"
-      >
-        <div class="carousel-inner" id="carousel-inner">
-          <div id="carousel-item-1" class="carousel-item active">
-            <div id="loadingScreen">
-              <div class="loader2"></div>
-              <p id="loadingText"></p>
+">
+
+
+<!-- Active use screen (Loading, Call) -->
+    <div id="oncall-screen" style="display: none;">
+        <!-- Agent video container -->
+        <div id="myVideoHolder"> 
+            <!-- Close button container -->
+            <div id="closeVideoButtonContainer">
+                <!-- Close video button *on call screen* -->
+                <button id="closeVideoButton">
+                    <svg focusable="false" viewBox="0 0 24 24" style="width: 100%;height:100%;fill:white; ">
+                        <path
+                            d="m4.51 15.48 2-1.59c.48-.38.76-.96.76-1.57v-2.6c3.02-.98 6.29-.99 9.32 0v2.61c0 .61.28 1.19.76 1.57l1.99 1.58c.8.63 1.94.57 2.66-.15l1.22-1.22c.8-.8.8-2.13-.05-2.88-6.41-5.66-16.07-5.66-22.48 0-.85.75-.85 2.08-.05 2.88l1.22 1.22c.71.72 1.85.78 2.65.15z">
+                        </path>
+                    </svg>
+                </button>
             </div>
-          </div>
         </div>
-      </div>
+
+        <div id="carousel" class="carousel slide" data-interval="5000" data-wrap="true" data-pause="false"
+            data-ride="carousel" style="top:0px;">
+            <div class="carousel-inner" id="carousel-inner">
+                <div id="carousel-item-1" class="carousel-item active">
+                    <div id="loadingScreen">
+                        <div class="loader">
+
+                            <div class="bottom-container">
+                                <img id="image-slider" src="img/Loading1.svg" alt="Image Slider">
+                                <div class="loading-bar">
+                                    <div class="bar"></div>
+                                    <div class="bar"></div>
+                                    <div class="bar"></div>
+                                    <div class="bar"></div>
+                                    <div class="bar"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Close button container -->
+                    <div id="cancel-button-loading-container" style="display: inline-block">
+                        <!-- Cancel button *loading screen -->
+                        <button id="cancel-button-loading" style="display: none;">
+                            <svg xmlns="img/cancel_button.svg" viewBox="0 0 384 512"
+                                style="width: 100%;height: 100%;fill:white" ;>
+                                <!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+                                <path
+                                    d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
-    <div id="error-text" style="display: none"></div>
+    </div>
+    <div id="error-text" style="display: none;"></div>
+
+    <!-- Home/Static screen -->
+    <div id="initial-screen" style="display: none;
+
+    object-fit: cover;
+    background-size: cover;
+    justify-content: center;
+    align-items: center;
+">
+<!-- Start button -->
+        <div class="text-center" id="buttonContainer">
+            <button id="StartVideoCall"
+                style=" width: 500px;
+            height: 150px;
+            border-radius: 100px; /* Half of the height */;overflow: hidden;padding: 30px;background: #0D3362;color: white;border: none;aspect-ratio: 1/1; max-width: 525px;">
+                <!-- <img src="img/cox-logo-newblue-withEnterprises.svg"
+                    alt="logo" style="width: 100%;user-select: none;"> -->
+                <span id="connectButton" style="font-size: 32px;">
+
+                </span>
+            </button>
+        </div>
+    </div>
 
     <div id="errorModal" class="modal fade">
-      <div
-        role="document"
-        class="modal-custom"
-        tabindex="-1"
-        aria-hidden="true"
-      >
-        <div class="modal-content-custom">
-          <div class="modal-header">
-            <div style="width: 100px; height: 100px">
-              <svg
-                focusable="false"
-                aria-hidden="true"
-                viewBox="0 0 24 24"
-                data-testid="ErrorOutlineRoundedIcon"
-                fill="white"
-              >
-                <path
-                  d="M12 7c.55 0 1 .45 1 1v4c0 .55-.45 1-1 1s-1-.45-1-1V8c0-.55.45-1 1-1zm-.01-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm1-3h-2v-2h2v2z"
-                ></path>
-              </svg>
-            </div>
-            <h5 class="modal-title" id="modalTitle">Error</h5>
-          </div>
-          <div class="modal-body"></div>
-          <div class="modal-footer-custom">
-            <button
-              type="button"
-              class="error-button"
-              data-dismiss="modal"
-              aria-label="Close"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+        <div role="document" class="modal-custom" tabindex="-1" aria-hidden="true">
+            <div class="modal-content-custom">
+                <div class="modal-header">
+                    <div style="width: 100px;height:100px;">
+                        <svg focusable="false" aria-hidden="true" viewBox="0 0 24 24"
+                            data-testid="ErrorOutlineRoundedIcon" fill="white">
+                            <path
+                                d="M12 7c.55 0 1 .45 1 1v4c0 .55-.45 1-1 1s-1-.45-1-1V8c0-.55.45-1 1-1zm-.01-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm1-3h-2v-2h2v2z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h5 class="modal-title" id="modalTitle">Error</h5>
 
-    <!-- <pre id="log" class="log"></pre> -->
-  </body>
+                </div>
+                <div class="modal-body"></div>
+                <div class="modal-footer-custom">
+                    <button type="button" class="error-button" data-dismiss="modal" aria-label="Close">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
 </html>
