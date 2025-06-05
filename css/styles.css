@@ -1,12 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Minimalistic header styles */
+.demo-header {
+  background-color: #f8f9fa;
+  padding: 8px 15px;
+  border-bottom: 1px solid #e7e7e7;
+  text-align: right; /* Aligns links to the right */
+  font-size: 0.85em;
+}
+.demo-header a {
+  margin-left: 15px;
+  text-decoration: none;
+  color: #007bff;
+}
+.demo-header a:hover {
+  text-decoration: underline;
+}
 
 #titleContainer {
   padding-block-start: 10%;
   border-radius: 30px;
   margin-inline: 6%;
-}
-
-.videoengager-widget-iframe {
-  border-radius: 0px !important;
 }
 
 #buttonContainer {
@@ -15,20 +31,25 @@
   margin-inline: 6%;
 }
 
-.footer-initial {
+.footer-initial  {
   font-size: 1rem;
-  color: #000000!important;
+  color: #000000 !important;
 }
 
 .bottom-text {
-  font-family: 'IQOS' !important;
+  font-family: "IQOS" !important;
   margin: 0px 15%;
   font-size: 1.5rem;
   margin: 0.2em;
 }
 
 #initial-screen {
-  background: linear-gradient(180deg, rgba(41, 38, 48, 1) 0%, rgb(255 255 255 / 0%) 45%, rgb(255 255 255 / 0%) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(41, 38, 48, 1) 0%,
+    rgb(255 255 255 / 0%) 45%,
+    rgb(255 255 255 / 0%) 100%
+  );
   background-size: 100% 50%;
   display: flex;
   flex-direction: column;
@@ -36,31 +57,28 @@
   background-repeat: no-repeat;
 }
 
-
 #initial-screen {
   height: 100%;
   width: 100%;
 }
 
-
-
 .logo {
-	object-fit: cover;
-    width: 100%;
-    height: 100%;
-    position: fixed;
-    left: 0px;
-    top: 0px;
-	margin-top: unset;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  margin-top: unset;
 }
 
 .bg-image {
-	background-image: url("/videoengager/img/ve.svg");
-	backdrop-filter: blur(20px);
-  	height: 100%;
-  	background-position: center;
-	background-repeat: no-repeat;
-	background-size: cover;
+  background-image: url("/videoengager/img/ve.svg");
+  backdrop-filter: blur(20px);
+  height: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .button2 {
@@ -77,35 +95,32 @@
   border: none;
   border-radius: 50px;
   cursor: pointer;
-  font-family: 'IQOS';
+  font-family: "IQOS";
   min-width: fit-content;
   -webkit-font-smoothing: auto;
 }
-  
+
 .button2:hover {
-	background-color: #41cacd
+  background-color: #41cacd;
 }
-  
+
 .button2:active {
-	background-color: rgb(64, 187, 189);
-	box-shadow: 0 5px #666;
-	transform: translateY(4px);
+  background-color: rgb(64, 187, 189);
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
 }
 
 .header {
-	position: fixed;
-    top: 25%;
-    width: 50%;
-    left: 25%;
-    color: white;
+  position: fixed;
+  top: 25%;
+  width: 50%;
+  left: 25%;
+  color: white;
 }
 
-
-
-#videoengageriframe{
-	background: rgb(150, 150, 150);
+#videoengageriframe {
+  background: rgb(150, 150, 150);
 }
-
 
 .loader1,
 .loader1:after {
@@ -149,7 +164,6 @@
   }
 }
 
-
 .loader2,
 .loader2:before,
 .loader2:after {
@@ -175,7 +189,7 @@
 }
 .loader2:before,
 .loader2:after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
 }
@@ -227,7 +241,7 @@
   src: url("./font/IQOS-Light.otf") format("opentype");
 }
 
-.navbar{
+.navbar {
   box-shadow: 0px 0px 15px 15px #26242c;
   background: #26242c;
   height: 60px;
@@ -241,38 +255,32 @@
 }
 
 .text-muted {
-  color: #000000!important;
+  color: #000000 !important;
   display: flow-root;
   text-transform: uppercase;
-  font-family: 'IQOS';
+  font-family: "IQOS";
 }
 
-
-
-
-
-
-
-.header-text-addition{
-  color: #6bdbe0; 
-  display: contents; 
+.header-text-addition {
+  color: #6bdbe0;
+  display: contents;
 }
 
-.secondery-text {
+.secondery-text  {
   color: #fafafa;
-  font-family: 'IQOS';
+  font-family: "IQOS";
   font-weight: normal;
 }
 
 .bottom-text {
   color: #000000;
-  font-family: 'IQOS';
+  font-family: "IQOS";
   font-weight: normal;
   margin-bottom: 25px;
   -webkit-font-smoothing: auto;
 }
 
-@media only screen and (min-width : 670px) {
+@media only screen and (min-width: 670px) {
   .header-text {
     padding-inline: 40px;
     font-size: 4.5rem;
@@ -290,19 +298,18 @@
     -webkit-font-smoothing: auto;
   }
 
-  .callButtonContainer{
+  .callButtonContainer {
     margin-inline: 5%;
-  }  
+  }
 }
 
-
-@media only screen and (min-height : 1000px) {
-  .header-text{
+@media only screen and (min-height: 1000px) {
+  .header-text {
     font-size: 4.5rem;
     font-weight: 300;
     line-height: 1.2;
   }
-  .secondery-text{
+  .secondery-text {
     font-size: 2.3rem;
     margin-bottom: 0.5rem;
     font-family: IQOS;
@@ -310,19 +317,18 @@
     line-height: 1.2;
     color: inherit;
   }
-  .callButtonContainer{
+  .callButtonContainer {
     margin-inline: 15%;
-  }  
+  }
 }
 
-
-@media only screen and (max-height : 1000px) {
-  .header-text{
+@media only screen and (max-height: 1000px) {
+  .header-text {
     font-size: 3rem;
     font-weight: 300;
     line-height: 1.2;
   }
-  .secondery-text{
+  .secondery-text {
     font-size: 1.5 rem;
     margin-bottom: 0.5rem;
     font-family: IQOS;
@@ -330,12 +336,12 @@
     line-height: 1.2;
     color: inherit;
   }
-  .callButtonContainer{
+  .callButtonContainer {
     margin-inline: 5%;
   }
 }
 
-#padding-bottom{
+#padding-bottom {
   padding-bottom: 0px;
 }
 
@@ -358,8 +364,9 @@
   left: 0px;
   width: 100%;
   display: flex;
+  overflow: hidden;
   justify-content: center;
-  align-items: center
+  align-items: center;
 }
 #closeVideoButton {
   height: 75px;
@@ -382,7 +389,6 @@
   width: 75px;
   border-radius: 9999px;
   background-color: #ea0000;
-
 }
 #cancel-button-loading:active {
   background-color: #900101;
@@ -399,14 +405,11 @@
   background-size: cover;
   width: 100%;
   height: 100vh;
-  overflow: hidden;
   max-height: 100vh;
   padding-bottom: 50px;
   padding-top: 50px;
   background: royalblue;
 }
-
-
 
 .loader1 {
   height: 25vh;
@@ -419,30 +422,26 @@
 }
 
 .loader2 {
-  position: absolute; 
+  position: absolute;
   left: 50%;
   transform: translate(-50%, -50%);
   top: 20%;
 }
 
 #loadingText {
-  position: absolute; 
-  color: white; 
-  font-size: 4vw; 
-  width: 100%; 
+  position: absolute;
+  color: white;
+  font-size: 4vw;
+  width: 100%;
   text-align: center;
   top: 45vh;
 }
 
-#StartVideoCall{
-  cursor:pointer;
+#StartVideoCall {
+  cursor: pointer;
 }
 
-
-
-
-
-.header-text{
+.header-text {
   color: #efefef;
   font-family: IQOS;
   font-weight: bold;
@@ -452,11 +451,12 @@
 
 .secondery-text {
   color: #fafafa;
-  font-family: 'IQOS';
+  font-family: "IQOS";
   font-weight: normal;
 }
 
-#oncall-screen, #myVideoHolder {
+#oncall-screen,
+#myVideoHolder {
   width: 100%;
   height: 100%;
   position: relative !important;
@@ -466,7 +466,16 @@
   height: 100%;
 }
 
-@media only screen and (max-height : 600px) {
+.log {
+  background: #222;
+  color: #eee;
+  padding: 1rem;
+  height: 200px;
+  overflow-y: auto;
+  margin-top: 1rem;
+}
+
+@media only screen and (max-height: 600px) {
   .text-center {
     padding-block: 5px;
   }
@@ -497,9 +506,7 @@
   }
 }
 
-
-
-@media only screen and (max-width : 400px) {
+@media only screen and (max-width: 400px) {
   .callButtonContainer {
     background-color: white;
     padding: 10px;
@@ -520,7 +527,7 @@
   }
 }
 
-@media only screen and (max-width : 300px) {
+@media only screen and (max-width: 300px) {
   .callButtonContainer {
     background-color: white;
     border-radius: 45px;
@@ -540,11 +547,11 @@
   }
 }
 
-@media only screen and (max-height : 420px) {
+@media only screen and (max-height: 420px) {
   #titleContainer {
     padding-block-start: 1%;
   }
-  
+
   #buttonContainer {
     padding-block-end: 1%;
   }
@@ -554,11 +561,11 @@
   }
 }
 
-@media only screen and (max-height : 300px) {
+@media only screen and (max-height: 300px) {
   #titleContainer {
     padding-block-start: 0;
   }
-  
+
   #buttonContainer {
     padding-block-end: 0;
   }
@@ -573,10 +580,9 @@
   color: white;
 }
 
-
 .modal-content-custom {
-  width:60vw !important;
-  min-height:50vh !important;
+  width: 60vw !important;
+  min-height: 50vh !important;
   height: max-content !important;
   border-radius: 17px !important;
   display: flex !important;
@@ -587,41 +593,44 @@
 }
 @media screen and (max-width: 550px) {
   #modalTitle {
-    font-size: 2rem  !important;
+    font-size: 2rem !important;
   }
   .modal-body {
-  font-size: 1rem !important;
-}
-.modal-content-custom {
-    width:90vw !important;
-  min-height:60vh !important;
-   height: max-content !important;
-}
+    font-size: 1rem !important;
+  }
+  .modal-content-custom {
+    width: 90vw !important;
+    min-height: 60vh !important;
+    height: max-content !important;
+  }
 }
 .modal-header {
   width: 100%;
-    padding-top:20px;
+  padding-top: 20px;
   /* height:45% !important; */
-  flex:2 1 !important;
-      transition: all 0.3s ease-in-out;
- background-color: rgb(229 115 115);
+  flex: 2 1 !important;
+  transition: all 0.3s ease-in-out;
+  background-color: rgb(229 115 115);
 }
 
 .modal-body {
   width: 100%;
-   flex:1 !important;
+  flex: 1 !important;
   font-size: 2rem;
 }
 .modal-footer-custom {
   width: 100%;
-  flex:1 !important;
-    display: flex ;
+  flex: 1 !important;
+  display: flex;
 }
-.modal-body, .modal-header {
-    display: flex !important;
+.modal-body,
+.modal-header {
+  display: flex !important;
 }
 
-.modal-body, .modal-header,.modal-footer-custom {
+.modal-body,
+.modal-header,
+.modal-footer-custom {
   text-align: center !important;
   flex-direction: column !important;
   align-items: center !important;
@@ -630,16 +639,17 @@
   border: 0px !important;
 }
 .error-button {
-      width: 45%;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    height: 57px;
-    border: 0px;
-    border-radius: 439px;
-    background-color: rgb(229 115 115);
-    color:white;
+  width: 45%;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  height: 57px;
+  border: 0px;
+  border-radius: 439px;
+  background-color: rgb(229 115 115);
+  color: white;
 }
-.error-button:hover,.modal-header:hover {
+.error-button:hover,
+.modal-header:hover {
   background-color: rgb(182, 56, 56);
 }
 
@@ -662,7 +672,7 @@
 }
 
 #carousel {
-  background: #33303D;
+  background: #33303d;
   bottom: 0px;
   left: 0px;
   right: 0px;
