@@ -1,15 +1,15 @@
 window.WIDGET_CONFIG = {
   en: {
     videoEngager: {
-      tenantId: "test_tenant", // Required
-      veEnv: "dev.videoengager.com", // Required: e.g., 'videome.leadsecure.com'
+      tenantId: "JaOzURAS29JLcWUl", // Required
+      veEnv: "videome.leadsecure.com", // Required: e.g., 'videome.leadsecure.com'
       veHttps: true, // Optional: Default is true
       isPopup: false, // Optional: Default is false
     },
     genesys: {
-      deploymentId: "0928a947-d4bd-4524-9fc3-d98cb7938a83", // Required
+      deploymentId: "7c8e841b-99f8-4d9b-b4b7-587332410de7", // Required
       // Provide either environment or domain
-      domain: 'mypurecloud.com.au', // e.g., 'mypurecloud.com', 'mypurecloud.ie'
+      domain: 'usw2.pure.cloud', // e.g., 'mypurecloud.com', 'mypurecloud.ie'
       hideGenesysLauncher: false, // Optional: Default is false
     },
     useGenesysMessengerChat: false, // Required if using startGenesysChat/endGenesysChat methods
@@ -65,14 +65,14 @@ window.BACKGROUND_IMAGE = "img/carribeanbateries.webp";
   "https://cdn.videoengager.com/widget/latest/browser/genesys-hub.umd.js",
   {
     videoEngager: {
-      tenantId: "test_tenant",
-      veEnv: "dev.videoengager.com",
+      tenantId: "JaOzURAS29JLcWUl",
+      veEnv: "videome.leadsecure.com",
       // firstMessage: 'Welcome to my videoengager service!',
       isPopup: false,
     },
     genesys: {
-      deploymentId: "786dbf11-0f83-4948-95a9-35e1d5a4b4b8",
-      domain: "mypurecloud.com.au",
+      deploymentId: "7c8e841b-99f8-4d9b-b4b7-587332410de7",
+      domain: "usw2.pure.cloud",
     },
     useGenesysMessengerChat: false,
   }
