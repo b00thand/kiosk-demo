@@ -1,7 +1,7 @@
 window.WIDGET_CONFIG = {
   en: {
     videoEngager: {
-      tenantId: "JaOzURAS29JLcWUl", // Required 
+      tenantId: "JaOzURAS29JLcWUl", // Required
       veEnv: "videome.leadsecure.com", // Required: e.g., 'videome.leadsecure.com'
       veHttps: true, // Optional: Default is true
       isPopup: false, // Optional: Default is false
