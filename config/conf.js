@@ -7,7 +7,7 @@ window.GENESYS_CONFIG = {
     videoengagerUrl: 'videome.leadsecure.com',
     tennantId: 'JaOzURAS29JLcWUl',
     // CHANGE THIS TO PURECLOUD DOMAIN
-    domain: 'api.usw2.pure.cloud',
+    domain: 'usw2.pure.cloud',
     queue: 'CEI CSC TechExpress'
   }
 };
