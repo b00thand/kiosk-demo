@@ -73,7 +73,6 @@ const handleError = function (statusCode) {
 };
 
 const lang = {
-
   en: {
     headerEmphasie: 'Click',
     motto: 'SmartVideo Kiosk Demo',
@@ -109,7 +108,7 @@ const inactivityTimeout = {
 
 const callTimeout = {
   cancelVideoSession: function () {
-    CXBus.command('VideoEngager.endCall');
+    VideoEngager.endVideoChatSession();
     this.timeoutId = undefined;
   },
   set: function () {
@@ -157,114 +156,97 @@ const setLang = function (lang) {
   $('#connectButton').html(lang.connect);
   $('#loadingText').html(lang.loadingText);
 };
-
+function getLangFromParams() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const lang = urlParams.get('lang');
+  return lang || DEFAULT_LANG;
+}
 const getConfig = function () {
-  const langObj = lang[DEFAULT_LANG];
-  setLang(langObj);
-  genesysConfigInit();
-  setConfig(DEFAULT_LANG);
-  loadGenesysWidget();
+  setConfig();
+  loadVideoEngagerHub();
 };
 
-const cloneObj = function (obj) {
-  try {
-    return JSON.parse(JSON.stringify(obj));
-  } catch (e) {
-    return {};
-  }
-};
 
-const setConfig = function (selectedLang) {
-  // avoid shallow copy
-  const genesysConfig = cloneObj(window.GENESYS_CONFIG);
-  selectedLang = selectedLang || DEFAULT_LANG;
-  // get default config
-  let config = genesysConfig[DEFAULT_LANG];
-  const selectedConf = genesysConfig[selectedLang] || {};
+const setConfig = function (selectedLang = getLangFromParams()) {
   const langObj = lang[selectedLang];
-  setLang(langObj);
-  // use defaul config props if props are not set in selected config
-  config = Object.assign(config, selectedConf);
-
-  if (config) {
-    window._genesys.widgets.videoengager.tenantId = config.tennantId;
-    window._genesys.widgets.videoengager.veUrl = config.videoengagerUrl;
-    window._genesys.widgets.webchat.transport.dataURL = config.environment;
-    window._genesys.widgets.webchat.transport.deploymentKey = config.deploymentId;
-    window._genesys.widgets.webchat.transport.orgGuid = config.organizationId;
-    window._genesys.widgets.webchat.transport.interactionData.routing.targetAddress = config.queue;
+  if (!langObj) {
+    console.error('selected language is not supported');
+    handleError(2);
+    return;
   }
+  setLang(langObj);
+  applyVeHubConfig(selectedLang);
+  // callHolder is not present in the configuration
+  // instead add in html div element with id "video-call-ui" and videoEngager Hub will inject the widget there
+  // extraAgentMessage is replaced with config .videoengager.firstMessage , which can be passed on configuration
+  // or can be changed via method VideoEngager.setFirstMessage('**This is a VideoEngager Video Call!!!**');
+  // webChatFormData (userData) is replaced with config .videoengager.customAttributes
+  // queue can be passed via customAttributes ass well and handled via Genesys Architect
+
 };
 
-const loadGenesysWidget = function () {
-  const widgetBaseUrl = 'https://apps.mypurecloud.de/widgets/9.0/';
-  const widgetScriptElement = document.createElement('script');
+const loadVideoEngagerHub = async function () {
+  if (typeof VideoEngager === 'undefined') {
+    handleError(8);
+    throw new Error('VideoEngager Hub is not loaded');
+  }
+  // VideoEngager Hub is loaded, now we should wait for it to be ready
+  await VideoEngager.initialize(window.__VideoEngagerConfigs);
+  console.log('VideoEngager Hub is ready');
 
-  widgetScriptElement.setAttribute('src', widgetBaseUrl + 'cxbus.min.js');
-  widgetScriptElement.addEventListener('load', function () {
-    CXBus.configure({ debug: true, pluginsPath: widgetBaseUrl + 'plugins/' });
-    CXBus.loadPlugin('widgets-core');
-    $('#StartVideoCall').click(function () {
-      startCleanInteraction();
-      // cancel video session after 3 minutes timeout
-      callTimeout.set();
-    });
-
-    const cancelButtonLoading = document.getElementById('cancel-button-loading');
-
-    cancelButtonLoading.addEventListener('touchend', function (e) {
-      e.preventDefault();
-      CXBus.command('VideoEngager.endCall');
-      setInitialScreen();
-    });
-    cancelButtonLoading.addEventListener('click', function (e) {
-      e.preventDefault();
-      CXBus.command('VideoEngager.endCall');
-      setInitialScreen();
-    });
-
-    const elem = document.getElementById('closeVideoButton');
-
-    elem.addEventListener('touchend', function (e) {
-      e.preventDefault();
-      CXBus.command('VideoEngager.endCall');
-      setInitialScreen();
-    });
-    elem.addEventListener('click', function (e) {
-      e.preventDefault();
-      CXBus.command('VideoEngager.endCall');
-      setInitialScreen();
-    });
-
-    CXBus.subscribe('WebChatService.started', function () {
-      $('#cancel-button-loading').show();
-    });
-
-    CXBus.subscribe('WebChatService.ended', function () {
-      console.log('Interaction Ended');
-      setInitialScreen();
-      callTimeout.cancel();
-    });
-
-    CXBus.subscribe('WebChatService.restored', function (e) {
-      console.error('Chat restored, cleaning it' + JSON.stringify(e));
-      CXBus.command('WebChatService.endChat');
-      handleError(5);
-    });
-
-    CXBus.subscribe('WebChatService.error', function (e) {
-      // Log the error and continue
-      console.error('WebService error' + JSON.stringify(e));
-      setInitialScreen();
-    });
+  $('#StartVideoCall').click(async () => {
+    await startCleanInteraction();
+    // cancel video session after 3 minutes timeout
+    callTimeout.set();
   });
-  document.head.append(widgetScriptElement);
-};
 
-const startCleanInteraction = function () {
+  const cancelButtonLoading = document.getElementById('cancel-button-loading');
+
+  cancelButtonLoading.addEventListener('touchend', async (e) => {
+    e.preventDefault();
+    await VideoEngager.endVideoChatSession();
+    setInitialScreen();
+  });
+  cancelButtonLoading.addEventListener('click', async (e) => {
+    e.preventDefault();
+    await VideoEngager.endVideoChatSession();
+    setInitialScreen();
+  });
+  /**
+   * Register event handlers for VideoEngager events
+   */
+  VideoEngager.on('VideoEngagerCall.started', (data) => {
+    console.log('VideoEngager call started', data);
+    $('#cancel-button-loading').show();
+  });
+
+  VideoEngager.on('VideoEngagerCall.ended', (data) => {
+    console.log('VideoEngager call ended', data);
+    setInitialScreen();
+    callTimeout.cancel();
+  });
+
+  VideoEngager.on('VideoEngagerCall.agentJoined', (data) => {
+    // when agent joins the call
+    console.log('Agent joined the call', data);
+    agentJoinedHandler();
+  });
+
+
+};
+function agentJoinedHandler() {
+  callTimeout.cancel();
+
+  $('#loadingScreen,#carousel').hide();
+  $('#cancel-button-loading').hide();
+
+  $('#video-call-ui').css('height', '100%');
+}
+
+const startCleanInteraction = async function () {
   setOnCallScreen();
 
-  CXBus.command('VideoEngager.startVideoEngager');
+  await VideoEngager.startVideoChatSession();
 
   $('.carousel-item').removeClass('active');
   $('#carousel-item-1').addClass('active');
@@ -273,70 +255,9 @@ const startCleanInteraction = function () {
   });
 };
 
-const genesysConfigInit = function () {
-  /* genesys configuration code */
-  if (!window._genesys) window._genesys = {};
-  if (!window._gt) window._gt = [];
-  window._genesys.widgets = {
-    main: {
-      downloadGoogleFont: false,
-      debug: true,
-      theme: 'dark',
-      lang: 'en',
-      i18n: 'https://apps.mypurecloud.de/widgets/9.0/i18n/widgets-en.i18n.json',
-      plugins: [
-        'webchatservice'
-      ],
-      preload: [
-        'webchatservice'
-      ]
-    },
-    videoengager: {
-      callHolder: 'myVideoHolder', // provides a place/div/ where the VideoEngager widget should be inserted. Otherwise, popup winddow will be open.
-      platform: 'purecloud', // one of 'engage' or 'purecloud'
-      tenantId: '', // VideoEngager tenantId
-      veUrl: '', // VideoEngager api base url
-      audioOnly: false, // start the VideoEngager call with audioOnly (without video)
-      autoAccept: true, // during the call negotiation - automatically enter the call
-      enablePrecall: false, // start the VideoEngager session with precall window - the visitor could select their camera/microphone settings
-      useWebChatForm: false, // start VideoEngager session with/without registration form
-      // in case of useWebChatForm == false, pass the following data to conversation initialization - visible for agent
-      extraAgentMessage: '**This is a VideoEngager Video Call!!!**',
-      webChatFormData: {
-        nickname: 'TechExpress',
-        firstname: 'TechExpress',
-        lastname: 'Kiosk User',
-        // email: 'na@videoengager.com',
-        subject: 'Tech Express Video Call',
-        userData: {}
-      },
-      customAttributes: {
-        ipad: true // hide video widget controll buttons and move video preview to right bottom corner
-      }
-    },
-    webchat: {
-      transport: {
-        type: 'purecloud-v2-sockets',
-        dataURL: '', // genesys server url ex: https://api.mypurecloud.com
-        deploymentKey: '', // deployment id
-        orgGuid: '', // organization id
-        markdown: true,
-        interactionData: {
-          routing: {
-            targetType: 'QUEUE',
-            targetAddress: '', // genesys queue name
-            priority: 2
-          }
-        }
-      }
-    },
-    extensions: {
-      VideoEngager: videoEngager.initExtension
-    }
-  };
-};
 
-function addCarouselItems () {
+
+function addCarouselItems() {
   const items = window.CAROUSEL_ITEMS || [];
   const carouselContainer = document.getElementById('carousel-inner');
   for (const item of carouselContainer.children) {
@@ -368,44 +289,5 @@ document.addEventListener('DOMContentLoaded', function (event) {
   }
   setInitialScreen();
   addCarouselItems();
-  // lang
-  $('#en_flag').show();
-  $('#de_flag').hide();
-
-  $('#en_flag').on('click', function () {
-    if (callStarted) {
-      return;
-    }
-    $('#de_flag').show();
-    $('#en_flag').hide();
-    setConfig('de');
-  });
-  $('#de_flag').on('click', function () {
-    if (callStarted) {
-      return;
-    }
-    $('#en_flag').show();
-    $('#de_flag').hide();
-    setConfig('en');
-  });
-
-  const messageHandler = function (e) {
-    console.log('messageHandler', e.data);
-    if (e.data && e.data.type === 'CallStarted') {
-      $('#loadingScreen,#carousel').hide();
-      $('#cancel-button-loading').hide();
-      $('#closeVideoButtonContainer').show();
-      $('#closeVideoButtonContainer').focus();
-      $('#myVideoHolder').css('height', '100%');
-
-      callTimeout.cancel();
-    }
-  };
-  if (window.addEventListener) {
-    window.addEventListener('message', messageHandler, false);
-  } else {
-    window.attachEvent('onmessage', messageHandler);
-  }
-
   getConfig();
 });

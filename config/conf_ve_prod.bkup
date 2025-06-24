@@ -3,11 +3,11 @@ window.GENESYS_CONFIG = {
     // WILL BE IGNORED, KEEP AS IS
     organizationId: '26cc7c06-c180-4ad3-9309-13416ea96e0c',
     // CHANGE THIS TO MESSENGER DEPLOYMENT ID
-    deploymentId: '4d91d146-8a5e-4500-b998-3a12eef90df5',
+    deploymentId: 'c5d801ae-639d-4e5e-a52f-4963342fa0dc',
     videoengagerUrl: 'videome.leadsecure.com',
-    tennantId: 'JaOzURAS29JLcWUl',
+    tennantId: '0FphTk091nt7G1W7',
     // CHANGE THIS TO PURECLOUD DOMAIN
-    domain: 'api.usw2.pure.cloud',
+    domain: 'mypurecloud.com',
     queue: 'CEI CSC TechExpress'
   }
 };
@@ -24,9 +24,16 @@ function applyVeHubConfig(language) {
     console.error(`Configuration for language "${language}" not found.`);
     throw new Error(`Configuration for language "${language}" not found.`);
   }
+  const requiredKeys = ['deploymentId', 'videoengagerUrl', 'tennantId', 'domain'];
+  for (const key of requiredKeys) {
+    if (!configs[key]) {
+      console.error(`Configuration for "${key}" is missing in the "${language}" configuration.`);
+      throw new Error(`Configuration for "${key}" is missing in the "${language}" configuration.`);
+    }
+  }
   window.__VideoEngagerConfigs = {
     videoEngager: {
-      tenantId: configs.tenantId, // Provided by VideoEngager Settings Page
+      tenantId: configs.tennantId, // Provided by VideoEngager Settings Page
       veEnv: configs.videoengagerUrl, // e.g., 'videome.leadsecure.com'
       isPopup: false, // true for popup video, false for inline
       customAttributes: {

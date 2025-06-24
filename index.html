@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./config/conf.js" defer></script>
-    <script src="https://cdn.videoengager.com/videoengager/js/1.02/videoengager.widget.js" defer></script>
+    <script src="https://cdn.videoengager.com/widget/latest/browser/genesys-hub.umd.js" defer></script>
     <script type="text/javascript" src="./js/kiosk.js"></script>
 </head>
 
@@ -23,22 +23,16 @@
 ">
 
 
-<!-- Active use screen (Loading, Call) -->
+    <!-- Active use screen (Loading, Call) -->
     <div id="oncall-screen" style="display: none;">
         <!-- Agent video container -->
-        <div id="myVideoHolder"> 
-            <!-- Close button container -->
-            <div id="closeVideoButtonContainer">
-                <!-- Close video button *on call screen* -->
-                <button id="closeVideoButton">
-                    <svg focusable="false" viewBox="0 0 24 24" style="width: 100%;height:100%;fill:white; ">
-                        <path
-                            d="m4.51 15.48 2-1.59c.48-.38.76-.96.76-1.57v-2.6c3.02-.98 6.29-.99 9.32 0v2.61c0 .61.28 1.19.76 1.57l1.99 1.58c.8.63 1.94.57 2.66-.15l1.22-1.22c.8-.8.8-2.13-.05-2.88-6.41-5.66-16.07-5.66-22.48 0-.85.75-.85 2.08-.05 2.88l1.22 1.22c.71.72 1.85.78 2.65.15z">
-                        </path>
-                    </svg>
-                </button>
-            </div>
-        </div>
+        <div id="video-call-ui"></div>
+        <!-- <button id="cancel-button-loading" style="display: none;">
+            <svg xmlns="img/cancel_button.svg" viewBox="0 0 384 512" style="width: 100%;height: 100%;fill:white" ;>
+                <path
+                    d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
+            </svg>
+        </button> -->
 
         <div id="carousel" class="carousel slide" data-interval="5000" data-wrap="true" data-pause="false"
             data-ride="carousel" style="top:0px;">
@@ -87,7 +81,7 @@
     justify-content: center;
     align-items: center;
 ">
-<!-- Start button -->
+        <!-- Start button -->
         <div class="text-center" id="buttonContainer">
             <button id="StartVideoCall"
                 style=" width: 500px;

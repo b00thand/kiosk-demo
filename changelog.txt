@@ -1,1 +1,2 @@
 2/15/24: Added cox-logo-newblue-withEnterprises.svg to images folder and updated link to CEI logo in index.html to point to it rather than internet source.
+6/18/25: Updated VideoEngager initialization process to use new configuration structure.
