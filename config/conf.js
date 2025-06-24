@@ -3,7 +3,7 @@ window.GENESYS_CONFIG = {
     // WILL BE IGNORED, KEEP AS IS
     organizationId: '26cc7c06-c180-4ad3-9309-13416ea96e0c',
     // CHANGE THIS TO MESSENGER DEPLOYMENT ID
-    deploymentId: '4d91d146-8a5e-4500-b998-3a12eef90df5',
+    deploymentId: '7c8e841b-99f8-4d9b-b4b7-587332410de7',
     videoengagerUrl: 'videome.leadsecure.com',
     tennantId: 'JaOzURAS29JLcWUl',
     // CHANGE THIS TO PURECLOUD DOMAIN
