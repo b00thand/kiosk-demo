@@ -5,7 +5,7 @@ window.GENESYS_CONFIG = {
     // CHANGE THIS TO MESSENGER DEPLOYMENT ID
     deploymentId: '7c8e841b-99f8-4d9b-b4b7-587332410de7',
     videoengagerUrl: 'videome.leadsecure.com',
-    tennantId: 'JaOzURAS29JLcWUl',
+    tenantId: 'JaOzURAS29JLcWUl',
     // CHANGE THIS TO PURECLOUD DOMAIN
     domain: 'usw2.pure.cloud',
     queue: 'CEI CSC TechExpress'
